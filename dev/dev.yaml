@@ -7,13 +7,13 @@
 
     #設定ファイルのコピー元
     path_src:
-      origin: /vagrant_data/ansible_origin/files
-      web_conf: /web_conf/etc
+      web_conf: files/web_conf/etc
 
     #インストールパッケージ
     pkg:
       php:
         - php
+        - php-opcache
       common:
         - vim
         - rsync
@@ -57,7 +57,7 @@
         - restart_httpd
 
     - name: copy web conf
-      action: copy src={{ path_src.origin }}{{ path_src.web_conf }} dest=/ owner=root group=root backup=yes 
+      action: copy src={{ path_src.web_conf }} dest=/ owner=root group=root backup=yes 
 #こっちは使い方がよくわかりません      synchronize: src=/vagrant_data/ansible_origin/files/web_conf dest=/tmp/ recursive=yes
       tags:
         - copy_web_conf
