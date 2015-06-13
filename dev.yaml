@@ -1,0 +1,62 @@
+---
+- hosts: 192.168.33.13
+
+  user: root
+
+  vars:
+
+    path_src:
+        origin: /vagrant_data/ansible_origin/files
+        web_conf: /web_conf/etc
+
+    php_pkg:
+      - php
+
+    common_pkg:
+      - vim
+      - rsync
+      - httpd
+      - libselinux-python
+      - git
+
+    repos:
+      - http://ftp-srv2.kddilabs.jp/Linux/distributions/fedora/epel/6/x86_64/epel-release-6-8.noarch.rpm
+      - http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+
+  tasks:
+#debug例    - debug: msg={{ path.src.web_conf }}
+#無理やり止める    - debug: msg={{ hoge }}
+
+    - name: install repos
+      action: yum name={{ item }} state=present
+      with_items:
+        - "{{ repos }}"
+      tags:
+        - install_repos
+
+    - name: install common pkg
+      action: yum name={{ item }} state=latest
+      with_items:
+        - "{{ common_pkg }}"
+      tags:
+        - install_common_pkg
+
+    - name: install php
+      action: yum name={{ item }} enablerepo=epel,remi-php56 state=latest
+      with_items:
+        - "{{ php_pkg }}"
+      tags:
+        - install_php
+      notify:
+        - restart_httpd
+
+    - name: copy web conf
+      action: copy src={{ path_src.origin }}{{ path_src.web_conf }} dest=/ owner=root group=root backup=yes 
+#こっちは使い方がよくわかりません      synchronize: src=/vagrant_data/ansible_origin/files/web_conf dest=/tmp/ recursive=yes
+      tags:
+        - copy_web_conf
+      notify:
+        - restart_httpd
+  handlers:
+    - name: restart_httpd
+      service: name=httpd state=restarted
