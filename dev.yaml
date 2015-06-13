@@ -1,14 +1,16 @@
 ---
-- hosts: 192.168.33.13
+- hosts: xxx.xxx.xxx.xxx
 
   user: root
 
   vars:
 
+  #設定ファイルのコピー元
     path_src:
         origin: /vagrant_data/ansible_origin/files
         web_conf: /web_conf/etc
 
+  #インストールパッケージ
     php_pkg:
       - php
 
@@ -19,6 +21,7 @@
       - libselinux-python
       - git
 
+  #登録リポジトリ
     repos:
       - http://ftp-srv2.kddilabs.jp/Linux/distributions/fedora/epel/6/x86_64/epel-release-6-8.noarch.rpm
       - http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
@@ -57,6 +60,8 @@
         - copy_web_conf
       notify:
         - restart_httpd
+
   handlers:
+
     - name: restart_httpd
       service: name=httpd state=restarted
