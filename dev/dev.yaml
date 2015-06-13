@@ -5,21 +5,22 @@
 
   vars:
 
-  #設定ファイルのコピー元
+    #設定ファイルのコピー元
     path_src:
-        origin: /vagrant_data/ansible_origin/files
-        web_conf: /web_conf/etc
+      origin: /vagrant_data/ansible_origin/files
+      web_conf: /web_conf/etc
 
-  #インストールパッケージ
-    php_pkg:
-      - php
-
-    common_pkg:
-      - vim
-      - rsync
-      - httpd
-      - libselinux-python
-      - git
+    #インストールパッケージ
+    pkg:
+      php:
+        - php
+      common:
+        - vim
+        - rsync
+        - httpd
+        - libselinux-python
+        - git
+        - tree
 
   #登録リポジトリ
     repos:
@@ -27,8 +28,10 @@
       - http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
 
   tasks:
-#debug例    - debug: msg={{ path.src.web_conf }}
-#無理やり止める    - debug: msg={{ hoge }}
+    #debug例    
+    #- debug: msg={{ pkg.common }}
+    #無理やり止める
+    #- debug: msg={{ hoge }}
 
     - name: install repos
       action: yum name={{ item }} state=present
@@ -40,14 +43,14 @@
     - name: install common pkg
       action: yum name={{ item }} state=latest
       with_items:
-        - "{{ common_pkg }}"
+        - "{{ pkg.common }}"
       tags:
         - install_common_pkg
 
     - name: install php
       action: yum name={{ item }} enablerepo=epel,remi-php56 state=latest
       with_items:
-        - "{{ php_pkg }}"
+        - "{{ pkg.php }}"
       tags:
         - install_php
       notify:
